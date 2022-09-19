@@ -13,7 +13,7 @@ class MainViewController: UIViewController {
     @IBOutlet weak var detailView: UIView!
     
     var webView: WKWebView!
-    let url: URL = URL(string:"http://localhost:3000")!
+    let url: URL = URL(string:"http://192.168.0.143:3000")!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,18 +22,28 @@ class MainViewController: UIViewController {
     }
     
     func initWebView() {
-       let webConfiguration = WKWebViewConfiguration()
-       webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: webConfiguration)
-       webView.uiDelegate = self
-       webView.isOpaque = false
-       webView.backgroundColor = .clear
-       webView.scrollView.backgroundColor = .clear
-       webView.scrollView.showsHorizontalScrollIndicator = false
-       webView.scrollView.showsVerticalScrollIndicator = false
-       detailView.addSubview(webView)
+        let webConfiguration = WKWebViewConfiguration()
+        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height), configuration: webConfiguration)
+        webView.uiDelegate = self
+        webView.isOpaque = false
+        webView.backgroundColor = .clear
+        webView.scrollView.backgroundColor = .clear
+        webView.scrollView.showsHorizontalScrollIndicator = false
+        webView.scrollView.showsVerticalScrollIndicator = false
         
-       webView.load(URLRequest(url: url))
-   }
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshWebView(_:)), for: UIControl.Event.valueChanged)
+        webView.scrollView.addSubview(refreshControl)
+        webView.scrollView.bounces = true
+        detailView.addSubview(webView)
+
+        webView.load(URLRequest(url: url))
+    }
+    
+    @objc func refreshWebView(_ sender: UIRefreshControl) {
+        webView?.reload()
+        sender.endRefreshing()
+    }
 }
 
 extension MainViewController: UIGestureRecognizerDelegate {
